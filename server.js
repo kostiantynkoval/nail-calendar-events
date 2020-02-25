@@ -1,23 +1,37 @@
 const express = require('express')
 const mongoose = require('mongoose')
+const config = require('config')
+const path = require('path')
 
 const app = express()
 
-async function connect() {
-    try {
-        await mongoose.connect('mongodb+srv://admin:admin@naileventscluster-3s2t9.mongodb.net/test?retryWrites=true&w=majority', {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-            useCreateIndex: true
-        });
-        console.log("Connected to MongoDB!")
-        app.listen(5000, () => console.log('App listening on port', app))
-    } catch (e) {
-        console.log('Server Error:', e)
-        process.exit(1)
-    }
+const PORT = config.get('port') || 5000
+
+if (process.env.NODE_ENV === 'production') {
+    app.use('/', express.static(path.join(__dirname, 'client', 'build')))
+
+    app.get('*', (req, res) => {
+        res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'))
+    })
 }
 
-connect()
+app.use(express.json({ extended: true }))
+
+app.use('/auth', require('./routes/auth.routes'))
+app.use('/events', require('./routes/events.routes'))
+
+mongoose.connect(config.get('mongoUri'), {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true
+})
+    .then(() => {
+        console.log('Connected to MongoDB!')
+        app.listen(PORT, () => console.log('App listening on port ' + PORT))
+    })
+    .catch(e => {
+        console.log('Server Error:', e)
+        process.exit(1)
+    })
 
 
