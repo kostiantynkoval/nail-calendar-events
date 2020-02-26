@@ -1,9 +1,12 @@
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import moment from 'moment'
+import classNames from 'classnames'
 import './DaysHandler.scss'
 
 interface DaysHandlerProps {
-    currentDate: moment.Moment
+    currentDate: moment.Moment,
+    currentMonth: moment.Moment,
+    setDate: (date: moment.Moment) => void
 }
 
 interface Week {
@@ -17,13 +20,19 @@ interface Day {
     isSelected: boolean
 }
 
-const DaysHandler: React.SFC<DaysHandlerProps> = ({ currentDate }) => {
+const DaysHandler: React.SFC<DaysHandlerProps> = ({ currentDate, setDate, currentMonth }) => {
 
     const [calendar, setCalendar]: [Week[], Dispatch<SetStateAction<Week[]>>] = useState<Week[]>([])
 
+    const changeDate = (date: Day) => {
+        if(!date.isAnotherMonth) {
+            setDate(date.value)
+        }
+    }
+
     useEffect(() => {
-        const startDayOfMonthScope = currentDate.clone().startOf('month').startOf('week')
-        const endDayOfMonthScope = currentDate.clone().endOf('month').endOf('week')
+        const startDayOfMonthScope = currentMonth.clone().startOf('month').startOf('week')
+        const endDayOfMonthScope = currentMonth.clone().endOf('month').endOf('week')
 
         const date = startDayOfMonthScope.clone().subtract(1, 'day')
         const calendar: Week[] = []
@@ -35,7 +44,7 @@ const DaysHandler: React.SFC<DaysHandlerProps> = ({ currentDate }) => {
                     .map(() => {
                         const value = date.add(1, 'day').clone()
                         const isToday = moment().isSame(value, 'date')
-                        const isAnotherMonth = !currentDate.isSame(value, 'month')
+                        const isAnotherMonth = !currentMonth.isSame(value, 'month')
                         const isSelected = currentDate.isSame(value, 'date')
 
                         return {
@@ -48,46 +57,49 @@ const DaysHandler: React.SFC<DaysHandlerProps> = ({ currentDate }) => {
             })
         }
         setCalendar(calendar)
-    }, [currentDate])
-
-    const renderCalendar = () => {
-
-    }
+    }, [currentDate, currentMonth])
 
     return (
-        <table>
-            <thead>
-            <tr>
-                <th>Sun</th>
-                <th>Mon</th>
-                <th>Tue</th>
-                <th>Wed</th>
-                <th>Thu</th>
-                <th>Fri</th>
-                <th>Sat</th>
-            </tr>
-            </thead>
-            <tbody>
-            {
-                console.log('cal', calendar)
-            }
-            {
-                calendar.map((week,i) => (
-                    <tr key={i}>
-                        {
-                            week.days.map((day, j) => (
-                                <td key={i.toString() + j.toString()}>
-                                    <span>{day.value.format('DD')}</span>
-                                </td>
-                            ))
-                        }
+        <section className="table-wrapper">
+            <main>
+                <header>
+                    <strong>Sun</strong>
+                    <strong>Mon</strong>
+                    <strong>Tue</strong>
+                    <strong>Wed</strong>
+                    <strong>Thu</strong>
+                    <strong>Fri</strong>
+                    <strong>Sat</strong>
+                </header>
 
-                    </tr>
-                ))
-            }
+                {
+                    calendar.map((week,i) => (
+                        <div className="table-row" key={i}>
+                            {
+                                week.days.map((day, j) => (
+                                    <span
+                                        className={classNames('table-cell', {disabled: day.isAnotherMonth})}
+                                        key={i.toString() + j.toString()}
+                                        onClick={() => changeDate(day)}
+                                    >
+                                        <span
+                                            className={classNames({
+                                                active: day.isToday,
+                                                selected: day.isSelected
+                                            })}
+                                        >{day.value.format('DD')}</span>
+                                    </span>
+                                ))
+                            }
 
-            </tbody>
-        </table>
+                        </div>
+                    ))
+                }
+
+
+            </main>
+        </section>
+
     )
 }
 
