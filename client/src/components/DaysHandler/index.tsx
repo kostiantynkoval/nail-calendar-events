@@ -1,12 +1,11 @@
-import React, { Dispatch, SetStateAction, useEffect, useState } from 'react'
+import React, { Dispatch, SetStateAction, useEffect, useState, useContext } from 'react'
 import moment from 'moment'
 import classNames from 'classnames'
+import {ChosenDate} from '../Dashboard'
 import './DaysHandler.scss'
 
 interface DaysHandlerProps {
-    currentDate: moment.Moment,
     currentMonth: moment.Moment,
-    setDate: (date: moment.Moment) => void
 }
 
 interface Week {
@@ -20,13 +19,14 @@ interface Day {
     isSelected: boolean
 }
 
-const DaysHandler: React.SFC<DaysHandlerProps> = ({ currentDate, setDate, currentMonth }) => {
+const DaysHandler: React.SFC<DaysHandlerProps> = ({ currentMonth }) => {
 
     const [calendar, setCalendar]: [Week[], Dispatch<SetStateAction<Week[]>>] = useState<Week[]>([])
+    const {chosenDate, changeChosenDate} = useContext(ChosenDate)
 
     const changeDate = (date: Day) => {
         if(!date.isAnotherMonth) {
-            setDate(date.value)
+            changeChosenDate(date.value)
         }
     }
 
@@ -45,7 +45,7 @@ const DaysHandler: React.SFC<DaysHandlerProps> = ({ currentDate, setDate, curren
                         const value = date.add(1, 'day').clone()
                         const isToday = moment().isSame(value, 'date')
                         const isAnotherMonth = !currentMonth.isSame(value, 'month')
-                        const isSelected = currentDate.isSame(value, 'date')
+                        const isSelected = chosenDate.isSame(value, 'date')
 
                         return {
                             value,
@@ -57,7 +57,7 @@ const DaysHandler: React.SFC<DaysHandlerProps> = ({ currentDate, setDate, curren
             })
         }
         setCalendar(calendar)
-    }, [currentDate, currentMonth])
+    }, [currentMonth, chosenDate])
 
     return (
         <section className="table-wrapper">

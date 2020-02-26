@@ -18,8 +18,7 @@ const userSchema = new Schema({
     lastName: {
         type: String,
         required: true
-    },
-    events: [{type: Schema.Types.ObjectId, ref: 'Event'}]
+    }
 });
 
 module.exports = model('User', userSchema)

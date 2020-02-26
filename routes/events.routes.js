@@ -11,6 +11,8 @@ router.get(
     async (req, res) => {
         try {
             const events = await Event.find({date: req.params.date})
+            console.log(req.params.date)
+            console.log(events)
             return res.json({ events })
         } catch (e) {
             console.log(e)
