@@ -1,27 +1,41 @@
-import React, { Dispatch, Fragment, SetStateAction, useContext, useEffect, useState } from 'react'
+import React, { Dispatch, SetStateAction, useContext, useEffect, useState } from 'react'
 import moment from 'moment'
-import classNames from 'classnames'
+import List from '@material-ui/core/List'
+import ListItem from '@material-ui/core/ListItem'
+import ListItemText from '@material-ui/core/ListItemText'
+import Card from '@material-ui/core/Card'
+import CardActions from '@material-ui/core/CardActions'
+import CardContent from '@material-ui/core/CardContent'
+import Button from '@material-ui/core/Button'
+import Typography from '@material-ui/core/Typography'
+import { IconButton } from '@material-ui/core'
+import Add from '@material-ui/icons/Add'
 import { ChosenDate } from '../Dashboard'
+import {Event} from '../../interfaces/Event'
 import './EventsTable.scss'
 
-interface EventTimed {
-    isLoggedUserEvent: boolean
-    isStart: boolean
-    isEnd: boolean
-    isMiddle: boolean
-    title?: string
-    begins?: string
-    ends?: string
-}
+
 
 const Events = () => {
-    const [events, setEvents]: [any[], Dispatch<SetStateAction<any>>] = useState([])
-    const [eventsTimed, setEventsTimed]: [Map<string, EventTimed>, Dispatch<SetStateAction<Map<string, EventTimed>>>] = useState(new Map())
+    const [events, setEvents]: [Event[], Dispatch<SetStateAction<Event[]>>] = useState<Event[]>([])
+    const [busySlots, setBusySlots]: [string[], Dispatch<SetStateAction<string[]>>] = useState<string[]>([])
     const { chosenDate } = useContext(ChosenDate)
     const timeTable: Array<string> = new Array(32).fill(0).map((item, i) =>
         chosenDate.clone().startOf('day').set('minute', 600 + i * 15).format('HH:mm')
     )
-    console.log('timeTable', timeTable)
+
+    const getBusySlots = (events: Event[]): string[] => {
+        return events.reduce((acc: string[], event: Event) => {
+            const slotsQuantity = +event.durationMinutes / 15
+            new Array(slotsQuantity).fill('').forEach((slot,i) => {
+                acc.push(moment(chosenDate).set({
+                    'hours': +event.startTime.slice(0, 2),
+                    'minutes': +event.startTime.slice(3)
+                }).add(i*15, 'minutes').format('HH:mm'))
+            })
+            return acc
+        }, [])
+    }
 
     useEffect(() => {
         fetch(`/events/${chosenDate.format('YYYY-MM-DD')}`, {
@@ -33,72 +47,71 @@ const Events = () => {
             .then(events => events.events)
             .then(events => {
                 setEvents(events)
-                const userId = '5e5694ec640e6a38d0dd3568' || localStorage.getItem('userId')
-                // const eventsTimed = timeTable.reduce((acc, time) => {
-                //     const currentTime = moment(chosenDate).set({ hour: +time.slice(0, 2), minute: +time.slice(3) })
-                //     let isLoggedUserEvent = false
-                //     let isStart = false
-                //     let isMiddle = false
-                //     let isEnd = false
-                //
-                //     for (let event of events) {
-                //         const eventStartTime = moment(event.date).set({
-                //             hour: +event.startTime.slice(0, 2),
-                //             minute: +event.startTime.slice(3)
-                //         })
-                //         const eventFinishTime = eventStartTime.clone().add(+event.durationMinutes, 'minutes')
-                //         if ( currentTime.isSameOrAfter(eventStartTime) && currentTime.isSameOrBefore(eventFinishTime) ) {
-                //             isLoggedUserEvent = userId === event.owner
-                //             isStart = currentTime.isSame(eventStartTime)
-                //             isEnd = currentTime.isSame(eventFinishTime)
-                //             isMiddle = !isStart && !isEnd
-                //
-                //             acc.set(currentTime.format('HH:mm'), {
-                //                 isLoggedUserEvent,
-                //                 isStart,
-                //                 isEnd,
-                //                 isMiddle
-                //             })
-                //         }
-                //     }
-                //     return acc
-                // }, new Map())
-                // setEventsTimed(eventsTimed)
-                // console.log('eventsTimed', eventsTimed)
-
+                setBusySlots(getBusySlots(events))
+                // const userId = '5e5694ec640e6a38d0dd3568' || localStorage.getItem('userId')
             })
     }, [chosenDate])
 
     return (
-        <section>
+        <section className="timeline-container">
+            <Typography variant="h6" component="span" display="inline">Current date</Typography>
+            <Typography variant="body1" component="span" display="inline">{chosenDate.format('MMMM, DD')}</Typography>
             {
                 timeTable.map((timeSlot: string) => (
-                    <div key={timeSlot} className="timeline-row">
-                        <div>{timeSlot}</div>
+                    <List
+                        key={timeSlot}
+                        component="div"
+                        disablePadding={true}
+                        dense={true}
+                    >
+                        <ListItem divider>
+                            <ListItemText className="timeline-row" primary={timeSlot}/>
+                            {
+                                events.map(event => {
+                                    if ( event.startTime === timeSlot ) {
+                                        const durationSlots = parseInt(event.durationMinutes) / 15
+                                        return (
+                                            <Card
+                                                style={{ height: durationSlots * 57 }}
+                                                className='event'
+                                                key={event.startTime}
+                                                variant="outlined">
+                                                <CardContent>
+                                                    <Typography variant="h5" component="h2">
+                                                        {event.title}
+                                                    </Typography>
+                                                    <Typography color="textSecondary">
+                                                        From: {event.startTime} To: {moment(chosenDate).set({
+                                                        'hours': +event.startTime.slice(0, 2),
+                                                        'minutes': +event.startTime.slice(3)
+                                                    }).add(+event.durationMinutes, 'minutes').format('HH:mm')}
+                                                    </Typography>
+                                                </CardContent>
+                                                <CardActions>
+                                                    <Button variant="outlined" color="secondary" size="small">Remove</Button>
+                                                </CardActions>
+                                            </Card>
+                                        )
+                                    } else {
+                                        return null
+                                    }
+                                })
+                            }
 
-                        {
-                            events.map(event => {
-                                if ( event.startTime === timeSlot ) {
-                                    const durationSlots = parseInt(event.durationMinutes)/15
-                                    return (
-                                        <div
-                                            style={{ height: durationSlots * 24 + durationSlots}}
-                                            className='event'
-                                            key={event.startTime}
-                                        >
-                                            <span>{event.title}</span>
-                                        </div>
-                                    )
-                                } else {
-                                    return null
-                                }
-                            })
-                        }
+                            {
+                                !busySlots.includes(timeSlot) ? (
+                                    <IconButton edge="end" aria-label="add">
+                                        <Add />
+                                    </IconButton>
+                                ) : (
+                                    <div style={{height: 48}}/>
+                                )
+                            }
 
-                    </div>
+                        </ListItem>
+                    </List>
                 ))
             }
-            {console.log('events', events)}
         </section>
     )
 }

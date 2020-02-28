@@ -1,3 +1,5 @@
+@import "src/variables";
+
 .grow {
   flex-grow: 1;
 }
@@ -14,7 +16,7 @@
   display: block;
 }
 
-@media screen and (min-width: 600px) {
+@media screen and (min-width: $tablet) {
   .title {
     display: block;
   }

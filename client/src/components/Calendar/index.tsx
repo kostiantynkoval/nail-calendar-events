@@ -1,7 +1,9 @@
-import React, {Fragment, useState} from 'react'
+import React, {useState} from 'react'
 import moment from 'moment'
 import MonthHandler from '../MonthHandler'
 import DaysHandler from '../DaysHandler'
+import SelectMaster from '../SelectMaster'
+import './Calendar.scss'
 
 const Calendar = () => {
 
@@ -12,10 +14,11 @@ const Calendar = () => {
     }
 
     return (
-        <Fragment>
-            <MonthHandler changeMonth={changeMonth} currentMonth={displayedMonth.format('MMMM')}/>
+        <section className="calendar-container">
+            <SelectMaster/>
+            <MonthHandler changeMonth={changeMonth} currentMonth={displayedMonth.format('MMMM YYYY')}/>
             <DaysHandler currentMonth={displayedMonth} />
-        </Fragment>
+        </section>
     )
 }
 

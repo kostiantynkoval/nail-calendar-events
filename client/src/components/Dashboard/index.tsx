@@ -1,7 +1,8 @@
-import React, {Fragment, createContext, useState} from 'react'
+import React, {createContext, useState} from 'react'
 import Calendar from '../Calendar'
 import EventsTable from '../EventsTable'
 import moment from 'moment'
+import './Dashboard.scss'
 
 export const ChosenDate = createContext({
     chosenDate: moment(),
@@ -17,12 +18,13 @@ const Dashboard = () => {
     }
 
     return (
-        <Fragment>
+        <div className="dashboard-container">
             <ChosenDate.Provider value={{chosenDate, changeChosenDate}}>
                 <Calendar/>
+                <div className="dashboard-divider"/>
                 <EventsTable/>
             </ChosenDate.Provider>
-        </Fragment>
+        </div>
     )
 }
 

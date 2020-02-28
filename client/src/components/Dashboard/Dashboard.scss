@@ -1,0 +1,29 @@
+@import "src/variables";
+
+.dashboard-container {
+  display: flex;
+  flex-flow: row nowrap;
+  margin: 16px;
+
+  .dashboard-divider {
+    display: block;
+    width: 16px;
+    height: 100vh;
+  }
+}
+
+@media screen and (max-width: $laptop) {
+  .dashboard-container {
+    flex-flow: column nowrap;
+
+    .dashboard-divider {
+      display: none;
+    }
+  }
+}
+
+@media screen and (max-width: $phone) {
+  .dashboard-container {
+    margin: 0 16px;
+  }
+}

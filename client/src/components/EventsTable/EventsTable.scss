@@ -1,20 +1,13 @@
-section {
+@import "src/variables";
+
+section.timeline-container {
   display: flex;
   flex-flow: column nowrap;
-
-  margin: 0 auto;
-  padding: 0 32px;
+  flex: 1 1 60%;
+  max-width: $laptop;
 
   .timeline-row {
-    background: #eeeeee;
-    line-height: 24px;
-    display: flex;
-    flex-flow: row nowrap;
-    justify-content: flex-start;
-    align-items: center;
-    position: relative;
-    border-bottom: 1px solid rgba(200,200,200, .5);
-    box-sizing: border-box;
+    //min-height: 56px;
   }
 
   .timeline-row:nth-child(4n) {
@@ -23,12 +16,21 @@ section {
 
   .event {
     position: absolute;
-    width: calc(100% - 80px);
-    left: 48px;
+    width: calc(100% - 128px);
+    left: 96px;
     top: 0;
-    border: 1px solid black;
+    border: 1px solid #5c6bc0;
     border-radius: 8px;
-    background: #dc3545;
+    background: #c5cae9;
     z-index: 2;
+    opacity: 0.8;
+    transition: all .3s;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    &:hover {
+      opacity: 1;
+    }
   }
 }

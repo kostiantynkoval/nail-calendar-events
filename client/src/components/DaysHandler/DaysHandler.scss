@@ -1,16 +1,17 @@
+@import "src/variables";
+
 .table-wrapper{
   display: flex;
-  max-width: 600px;
+  flex-grow: 1;
+  width: 100%;
+  max-width: $tablet;
   margin: 0 auto;
-  padding: 0 2rem;
 
   main {
     flex-grow: 1;
     display: flex;
     flex-flow: column nowrap;
     margin-bottom: 1rem;
-    padding-left: 1rem;
-    padding-right: 1rem;
 
     header {
       background: #AAAAAA;
