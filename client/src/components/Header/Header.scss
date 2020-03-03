@@ -16,6 +16,14 @@
   display: block;
 }
 
+.form-login {
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: space-between;
+  padding: 1rem;
+  min-height: 180px;
+}
+
 @media screen and (min-width: $tablet) {
   .title {
     display: block;

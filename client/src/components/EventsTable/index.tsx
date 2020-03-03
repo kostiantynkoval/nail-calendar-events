@@ -11,18 +11,52 @@ import Typography from '@material-ui/core/Typography'
 import { IconButton } from '@material-ui/core'
 import Add from '@material-ui/icons/Add'
 import { ChosenDate } from '../Dashboard'
+import { User } from '../../App'
+import AddEventForm from '../AddEventForm'
 import {Event} from '../../interfaces/Event'
 import './EventsTable.scss'
-
 
 
 const Events = () => {
     const [events, setEvents]: [Event[], Dispatch<SetStateAction<Event[]>>] = useState<Event[]>([])
     const [busySlots, setBusySlots]: [string[], Dispatch<SetStateAction<string[]>>] = useState<string[]>([])
+    const [isFormOpen, setIsFormOpen]: [boolean, Dispatch<SetStateAction<boolean>>] = useState<boolean>(false)
+    const [currentTimeSlot, setCurrentTimeSlot]: [string, Dispatch<SetStateAction<string>>] = useState<string>('')
     const { chosenDate } = useContext(ChosenDate)
+    const { user } = useContext(User)
     const timeTable: Array<string> = new Array(32).fill(0).map((item, i) =>
         chosenDate.clone().startOf('day').set('minute', 600 + i * 15).format('HH:mm')
     )
+
+    const closeAddEventForm = () => {
+        setIsFormOpen(false)
+    }
+
+    const openAddEventForm = (timeSlot: string) => {
+        setCurrentTimeSlot(timeSlot)
+        setIsFormOpen(true)
+    }
+
+    function submitAddEventForm (form: any): Promise<any> { //TODO: !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        const body = {
+            ...form,
+            startTime: currentTimeSlot,
+            owner: user?.userId
+        }
+        return fetch(`/events/${chosenDate.clone().format('YYYY-MM-DD')}/create`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${user?.token}`
+            },
+            body: JSON.stringify(body)
+        })
+            .then(res => res.json())
+            .then(res => {
+                console.log('res', res)
+            })
+    }
 
     const getBusySlots = (events: Event[]): string[] => {
         return events.reduce((acc: string[], event: Event) => {
@@ -38,11 +72,7 @@ const Events = () => {
     }
 
     useEffect(() => {
-        fetch(`/events/${chosenDate.format('YYYY-MM-DD')}`, {
-            headers: {
-                'Authorization': 'sss eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVlNTY4YWZmMDMxZTQ3MjVmODMxZTQyZiIsImZpcnN0TmFtZSI6IlFxcSIsImxhc3ROYW1lIjoiUXFxcSIsImVtYWlsIjoicXFAcXEucXEiLCJpYXQiOjE1ODI3OTQ0NzUsImV4cCI6MTU4Mjc5ODA3NX0.4VuyDqqsPnuDbbgW9IB82NeZWbkpICQUz8lHNyE8O24'
-            }
-        })
+        fetch(`/events/${chosenDate.format('YYYY-MM-DD')}`)
             .then(res => res.json())
             .then(events => events.events)
             .then(events => {
@@ -56,6 +86,7 @@ const Events = () => {
         <section className="timeline-container">
             <Typography variant="h6" component="span" display="inline">Current date</Typography>
             <Typography variant="body1" component="span" display="inline">{chosenDate.format('MMMM, DD')}</Typography>
+            <AddEventForm isFormOpen={isFormOpen} handleClose={closeAddEventForm} submitForm={submitAddEventForm} />
             {
                 timeTable.map((timeSlot: string) => (
                     <List
@@ -97,10 +128,9 @@ const Events = () => {
                                     }
                                 })
                             }
-
                             {
-                                !busySlots.includes(timeSlot) ? (
-                                    <IconButton edge="end" aria-label="add">
+                                user?.token && !busySlots.includes(timeSlot) ? (
+                                    <IconButton onClick={() => openAddEventForm(timeSlot)} edge="end" aria-label="add">
                                         <Add />
                                     </IconButton>
                                 ) : (
