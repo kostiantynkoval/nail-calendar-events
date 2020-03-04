@@ -36,7 +36,8 @@ router.post(
                 email: user.email,
                 password: hashedPassword,
                 firstName: user.firstName,
-                lastName: user.lastName
+                lastName: user.lastName,
+                isAdmin: user.isAdmin ? user.isAdmin : false
             })
 
             await newUser.save()

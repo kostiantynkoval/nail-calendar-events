@@ -18,6 +18,10 @@ const userSchema = new Schema({
     lastName: {
         type: String,
         required: true
+    },
+    isAdmin: {
+        type: Boolean,
+        required: true
     }
 });
 
