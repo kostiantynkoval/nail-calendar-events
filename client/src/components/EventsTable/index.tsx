@@ -37,25 +37,26 @@ const Events = () => {
         setIsFormOpen(true)
     }
 
-    function submitAddEventForm (form: any): Promise<any> { //TODO: !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        const body = {
-            ...form,
-            startTime: currentTimeSlot,
-            owner: user?.userId
-        }
-        return fetch(`/events/${chosenDate.clone().format('YYYY-MM-DD')}/create`, {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${user?.token}`
-            },
-            body: JSON.stringify(body)
-        })
-            .then(res => res.json())
-            .then(res => {
-                console.log('res', res)
+    function submitAddEventForm (form: any): Promise<any> {
+
+            const body = {
+                ...form,
+                startTime: currentTimeSlot,
+                owner: user?.userId
+            }
+            return fetch(`/events/${chosenDate.clone().format('YYYY-MM-DD')}/create`, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${user?.token}`
+                },
+                body: JSON.stringify(body)
             })
+                .then(res => res.json())
+                .then(res => {
+                    console.log('res', res)
+                })
     }
 
     const getBusySlots = (events: Event[]): string[] => {

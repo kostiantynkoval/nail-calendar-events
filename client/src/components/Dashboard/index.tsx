@@ -11,10 +11,10 @@ export const ChosenDate = createContext({
 
 const Dashboard = () => {
 
-    const [chosenDate, setChosenDate] = useState(moment())
+    const [chosenDate, setChosenDate] = useState(moment().startOf('date'))
 
     const changeChosenDate = (date: moment.Moment) => {
-        setChosenDate(date)
+        setChosenDate(date.clone().startOf('date'))
     }
 
     return (
