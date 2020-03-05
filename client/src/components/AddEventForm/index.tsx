@@ -6,6 +6,9 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import MenuItem from '@material-ui/core/MenuItem';
+import { Procedures } from '../Dashboard'
+import {Procedure} from '../../interfaces/Procedure'
 
 type AddEventFormProps = {
     isFormOpen: boolean,
@@ -15,14 +18,19 @@ type AddEventFormProps = {
 
 export default function AddEventForm({isFormOpen, handleClose, submitForm}: AddEventFormProps) {
 
-    const [title, setTitle] = useState<string>('')
+    const [procedure, setProcedure] = useState<string>('')
     const [durationMinutes, setDurationMinutes] = useState<string>('')
     const [comment, setComment] = useState<string>('')
+    const procedures: Procedure[] = useContext(Procedures)
+
+    const handleSelect = (e: ChangeEvent<HTMLInputElement>) => {
+        setProcedure(e.target.value)
+    }
 
     const handleInput = (e: ChangeEvent<HTMLInputElement>) => {
         switch (e.currentTarget.name) {
             case 'title':
-                setTitle(e.currentTarget.value)
+                //setTitle(e.currentTarget.value)
                 break
             case 'durationMinutes':
                 setDurationMinutes(e.currentTarget.value)
@@ -31,21 +39,24 @@ export default function AddEventForm({isFormOpen, handleClose, submitForm}: AddE
                 setComment(e.currentTarget.value)
                 break
             default:
-                console.log('Wrong target name')
+                console.log('Wrong target name', e)
         }
     }
 
     function checkAndSubmitForm () {
-        submitForm({
-            title,
-            comment,
-            durationMinutes
-        })
+        const procedureObj = procedures.find(item => item._id === procedure)
+        if (procedureObj) {
+            submitForm({
+                title: procedureObj.title,
+                comment,
+                durationMinutes: procedureObj.durationMinutes
+            })
+        }
         resetStateAndClose()
     }
 
     const resetStateAndClose = () => {
-        setTitle('')
+        setProcedure('')
         setDurationMinutes('')
         setComment('')
         handleClose()
@@ -59,22 +70,32 @@ export default function AddEventForm({isFormOpen, handleClose, submitForm}: AddE
                         Please fill in the form
                     </DialogContentText>
                     <TextField
-                        autoFocus
+                        select
                         margin="dense"
-                        name="title"
                         label="Title"
                         fullWidth
-                        onChange={handleInput}
-                        value={title}
-                    />
-                    <TextField
-                        margin="dense"
-                        name="durationMinutes"
-                        label="Duration (in minutes)"
-                        fullWidth
-                        onChange={handleInput}
-                        value={durationMinutes}
-                    />
+                        onChange={handleSelect}
+                        value={procedure}
+                    >
+                        {
+                            procedures.map(option => (
+                                <MenuItem
+                                    key={option._id}
+                                    value={option._id}
+                                >
+                                    {option.title}
+                                </MenuItem>
+                            ))
+                        }
+                    </TextField>
+                    {/*<TextField*/}
+                    {/*    margin="dense"*/}
+                    {/*    name="durationMinutes"*/}
+                    {/*    label="Duration (in minutes)"*/}
+                    {/*    fullWidth*/}
+                    {/*    onChange={handleInput}*/}
+                    {/*    value={durationMinutes}*/}
+                    {/*/>*/}
                     <TextField
                         multiline
                         margin="dense"
@@ -89,7 +110,7 @@ export default function AddEventForm({isFormOpen, handleClose, submitForm}: AddE
                     <Button onClick={handleClose} color="primary">
                         Cancel
                     </Button>
-                    <Button disabled={!title || !durationMinutes} onClick={checkAndSubmitForm} color="primary">
+                    <Button disabled={!procedure} onClick={checkAndSubmitForm} color="primary">
                         Subscribe
                     </Button>
                 </DialogActions>

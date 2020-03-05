@@ -19,6 +19,8 @@ app.use(express.json({ extended: true }))
 
 app.use('/auth', require('./routes/auth.routes'))
 app.use('/events', require('./routes/events.routes'))
+app.use('/procedures', require('./routes/procedures.routes'))
+app.use('/technicians', require('./routes/technicians.routes'))
 
 mongoose.connect(config.get('mongoUri'), {
     useNewUrlParser: true,

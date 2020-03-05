@@ -10,13 +10,22 @@ const eventSchema = new Schema({
         required: true
     },
     comment: String,
-    owner: { type: Schema.Types.ObjectId, ref: 'User' },
+    owner: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
     startTime: {
         type: String,
         required: true
     }, //Format: 'HH:mm'; must be equal to quoters. I.e. 00:15, 00:30, 00:45, 00:00
     durationMinutes: {
         type: String,
+        required: true
+    },
+    technicianID: {
+        type: Schema.Types.ObjectId,
+        ref: 'Technician',
         required: true
     }
 });
