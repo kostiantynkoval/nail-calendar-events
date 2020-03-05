@@ -20,10 +20,10 @@ const eventSchema = new Schema({
         required: true
     }, //Format: 'HH:mm'; must be equal to quoters. I.e. 00:15, 00:30, 00:45, 00:00
     durationMinutes: {
-        type: String,
+        type: Number,
         required: true
     },
-    technicianID: {
+    technicianId: {
         type: Schema.Types.ObjectId,
         ref: 'Technician',
         required: true

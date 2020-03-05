@@ -9,12 +9,15 @@ const isTaskOverlaps = require('../utils/isTaskOverlaps')
 const router = Router()
 
 router.get(
-    '/:date',
+    '/:date/:tecnicianId',
     async (req, res) => {
         try {
-            const events = await Event.find({date: req.params.date})
-            console.log(req.params.date)
-            console.log(events)
+            console.log(req.params)
+            const allEvents = await Event.find({
+                date: req.params.date,
+            })
+            console.log(allEvents)
+            const events = await Event.populate(allEvents, [ { path: 'tecnicianId', match: { tecnicianId: req.params.tecnicianId } } ])
             return res.json({ events })
         } catch (e) {
             console.log(e)
@@ -31,7 +34,7 @@ router.post(
             const date = req.params.date
             const events = await Event.find({date})
 
-            const {title, comment, startTime, durationMinutes, technicianID} = req.body
+            const {title, comment, startTime, durationMinutes, technicianId} = req.body
             const startTaskTime = moment()
                 .startOf('day')
                 .year(Number(date.slice(0,4)))
@@ -49,7 +52,7 @@ router.post(
                     startTime,
                     durationMinutes,
                     owner: req.user.id,
-                    technicianID
+                    technicianId
                 })
                 await event.save()
                 return res.status(201).json({ message: "Event successfully created" })

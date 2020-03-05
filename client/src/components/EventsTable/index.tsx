@@ -45,7 +45,7 @@ const Events = () => {
       ...form,
       startTime: currentTimeSlot,
       owner: user?.userId,
-      technicianID: selectedTechnician._id
+      technicianId: selectedTechnician._id
     }
     return fetch(`/events/${chosenDate.clone().format('YYYY-MM-DD')}/create`, {
       method: 'POST',
@@ -76,15 +76,17 @@ const Events = () => {
   }
   
   useEffect(() => {
-    fetch(`/events/${chosenDate.format('YYYY-MM-DD')}`)
-      .then(res => res.json())
-      .then(events => events.events)
-      .then(events => {
-        setEvents(events)
-        setBusySlots(getBusySlots(events))
-        // const userId = '5e5694ec640e6a38d0dd3568' || localStorage.getItem('userId')
-      })
-  }, [chosenDate])
+    if (!!selectedTechnician && !!selectedTechnician._id && !!chosenDate) {
+      fetch(`/events/${chosenDate.format('YYYY-MM-DD')}/${selectedTechnician._id}`)
+          .then(res => res.json())
+          .then(events => events.events)
+          .then(events => {
+            setEvents(events)
+            setBusySlots(getBusySlots(events))
+          })
+    }
+
+  }, [chosenDate, selectedTechnician])
   
   const isFutureTime = (chosenDate: moment.Moment, chosenTimeSlot: string): boolean => {
     const plannedStartTime = chosenDate
