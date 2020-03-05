@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useContext, useState } from 'react'
+import React, { ChangeEvent, useContext, useState, useEffect } from 'react'
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
@@ -7,7 +7,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import MenuItem from '@material-ui/core/MenuItem';
-import { Procedures } from '../Dashboard'
+import { Procedures, Technicians } from '../Dashboard'
 import {Procedure} from '../../interfaces/Procedure'
 
 type AddEventFormProps = {
@@ -22,10 +22,17 @@ export default function AddEventForm({isFormOpen, handleClose, submitForm}: AddE
     const [durationMinutes, setDurationMinutes] = useState<string>('')
     const [comment, setComment] = useState<string>('')
     const procedures: Procedure[] = useContext(Procedures)
+    const {selectedTechnician} = useContext(Technicians)
+    const [filteredProcedures, setFilteredProcedures] = useState<Procedure[]>(procedures)
 
     const handleSelect = (e: ChangeEvent<HTMLInputElement>) => {
         setProcedure(e.target.value)
     }
+
+    useEffect(() => {
+        const filtered = procedures.filter(procedure => selectedTechnician.procedures.includes(procedure._id))
+        setFilteredProcedures(filtered)
+    }, [selectedTechnician, procedures])
 
     const handleInput = (e: ChangeEvent<HTMLInputElement>) => {
         switch (e.currentTarget.name) {
@@ -78,7 +85,7 @@ export default function AddEventForm({isFormOpen, handleClose, submitForm}: AddE
                         value={procedure}
                     >
                         {
-                            procedures.map(option => (
+                            filteredProcedures.map(option => (
                                 <MenuItem
                                     key={option._id}
                                     value={option._id}

@@ -31,7 +31,7 @@ router.post(
             const date = req.params.date
             const events = await Event.find({date})
 
-            const {title, comment, startTime, durationMinutes} = req.body
+            const {title, comment, startTime, durationMinutes, technicianID} = req.body
             const startTaskTime = moment()
                 .startOf('day')
                 .year(Number(date.slice(0,4)))
@@ -48,7 +48,8 @@ router.post(
                     comment,
                     startTime,
                     durationMinutes,
-                    owner: req.user.id
+                    owner: req.user.id,
+                    technicianID
                 })
                 await event.save()
                 return res.status(201).json({ message: "Event successfully created" })

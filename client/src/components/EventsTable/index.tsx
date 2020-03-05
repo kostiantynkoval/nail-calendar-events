@@ -10,7 +10,7 @@ import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
 import { IconButton } from '@material-ui/core'
 import Add from '@material-ui/icons/Add'
-import { ChosenDate } from '../Dashboard'
+import { ChosenDate, Technicians } from '../Dashboard'
 import { User } from '../../App'
 import AddEventForm from '../AddEventForm'
 import { Event } from '../../interfaces/Event'
@@ -23,6 +23,7 @@ const Events = () => {
   const [isFormOpen, setIsFormOpen]: [boolean, Dispatch<SetStateAction<boolean>>] = useState<boolean>(false)
   const [currentTimeSlot, setCurrentTimeSlot]: [string, Dispatch<SetStateAction<string>>] = useState<string>('')
   const { chosenDate } = useContext(ChosenDate)
+  const { selectedTechnician } = useContext(Technicians)
   const { user } = useContext(User)
   
   const timeTable: Array<string> = new Array(32).fill(0).map((item, i) =>
@@ -43,7 +44,8 @@ const Events = () => {
     const body = {
       ...form,
       startTime: currentTimeSlot,
-      owner: user?.userId
+      owner: user?.userId,
+      technicianID: selectedTechnician._id
     }
     return fetch(`/events/${chosenDate.clone().format('YYYY-MM-DD')}/create`, {
       method: 'POST',
