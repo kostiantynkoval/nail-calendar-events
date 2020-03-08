@@ -1,4 +1,5 @@
 import React, { useContext, useState, ChangeEvent } from 'react'
+import { User as UserData } from '../../interfaces/User'
 import { User } from '../../App'
 import AppBar from '@material-ui/core/AppBar'
 import Toolbar from '@material-ui/core/Toolbar'
@@ -11,6 +12,8 @@ import MenuItem from '@material-ui/core/MenuItem'
 import Menu from '@material-ui/core/Menu'
 import MenuIcon from '@material-ui/icons/Menu'
 import './Header.scss'
+
+const getInitials = (user:UserData): string => user ? user.firstName.charAt(0) + user.lastName.charAt(0) : ''
 
 const Header = () => {
 
@@ -80,11 +83,8 @@ const Header = () => {
             .then(res => res.json())
             .then(value => {
                 if(!!value.token) {
-                    console.log('VALUE', value)
                     localStorage.setItem('token', value.token)
-                    localStorage.setItem('userId', value.userId)
-                    localStorage.setItem('initials', value.initials)
-                    updateUser(value)
+                    updateUser(value.token)
                     handleFormClose()
                     setPassword('')
                     setEmail('')
@@ -95,8 +95,6 @@ const Header = () => {
 
     const logoutUser = () => {
         localStorage.removeItem('token')
-        localStorage.removeItem('userId')
-        localStorage.removeItem('initials')
         updateUser(null)
         handleMenuClose()
         setPassword('')
@@ -180,7 +178,7 @@ const Header = () => {
                                     onClick={handleProfileMenuOpen}
                                     color="inherit"
                                 >
-                                    <Avatar>{user?.initials}</Avatar>
+                                    <Avatar>{getInitials(user)}</Avatar>
                                 </IconButton>
                             ) : (
                                 <IconButton

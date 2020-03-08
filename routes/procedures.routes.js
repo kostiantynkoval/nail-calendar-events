@@ -10,7 +10,6 @@ router.get(
     async (req, res) => {
         try {
             const procedures = await Procedure.find()
-            console.log(procedures)
             return res.json({ procedures })
         } catch (e) {
             console.log(e)
@@ -29,7 +28,6 @@ router.post(
     ],
     auth,
     async (req, res) => {
-        console.log('req.user.isAdmin', req.user.isAdmin)
         try {
             const { errors } = validationResult(req)
             if ( errors.length ) {

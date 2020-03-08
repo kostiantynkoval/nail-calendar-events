@@ -10,7 +10,6 @@ router.get(
     async (req, res) => {
         try {
             const technicians = await Technician.find()
-            console.log(technicians)
             return res.json({ technicians })
         } catch (e) {
             console.log(e)

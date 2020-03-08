@@ -16,6 +16,15 @@ import AddEventForm from '../AddEventForm'
 import { Event } from '../../interfaces/Event'
 import './EventsTable.scss'
 
+const isFutureTime = (chosenDate: moment.Moment, chosenTimeSlot: string, isRemove: boolean): boolean => {
+  const plannedStartTime = chosenDate
+    .clone()
+    .startOf('day')
+    .hours(Number(chosenTimeSlot.slice(0, 2)))
+    .minutes(Number(chosenTimeSlot.slice(3)))
+  const checkPoint = isRemove ? moment().subtract(30, 'minutes') : moment()
+  return plannedStartTime.isAfter(checkPoint)
+}
 
 const Events = () => {
   const [events, setEvents]: [Event[], Dispatch<SetStateAction<Event[]>>] = useState<Event[]>([])
@@ -24,7 +33,7 @@ const Events = () => {
   const [currentTimeSlot, setCurrentTimeSlot]: [string, Dispatch<SetStateAction<string>>] = useState<string>('')
   const { chosenDate } = useContext(ChosenDate)
   const { selectedTechnician } = useContext(Technicians)
-  const { user } = useContext(User)
+  const { user, updateUser } = useContext(User)
   
   const timeTable: Array<string> = new Array(32).fill(0).map((item, i) =>
     chosenDate.clone().startOf('day').set('minute', 600 + i * 15).format('HH:mm')
@@ -44,7 +53,7 @@ const Events = () => {
     const body = {
       ...form,
       startTime: currentTimeSlot,
-      owner: user?.userId,
+      owner: user?._id,
       technicianId: selectedTechnician._id
     }
     return fetch(`/events/${chosenDate.clone().format('YYYY-MM-DD')}/create`, {
@@ -56,9 +65,33 @@ const Events = () => {
       },
       body: JSON.stringify(body)
     })
-      .then(res => res.json())
+      .then(res => {
+        if (res.status === 201) {
+          getEvents()
+        } else {
+          updateUser(null)
+        }
+        return res.json()
+      })
       .then(res => {
         console.log('res', res)
+      })
+  }
+  
+  const removeEvent = (id: string) => {
+    return fetch(`/events/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${user?.token}`
+      }
+    })
+      .then(res => {
+        if (res.status === 200) {
+          getEvents()
+        } else {
+          updateUser(null)
+        }
+        return res.json()
       })
   }
   
@@ -75,27 +108,22 @@ const Events = () => {
     }, [])
   }
   
+  const getEvents = () => {
+    return fetch(`/events/${chosenDate.format('YYYY-MM-DD')}/${selectedTechnician._id}`)
+      .then(res => res.json())
+      .then(events => events.events)
+      .then(events => {
+        setEvents(events)
+        setBusySlots(getBusySlots(events))
+      })
+  }
+  
   useEffect(() => {
     if (!!selectedTechnician && !!selectedTechnician._id && !!chosenDate) {
-      fetch(`/events/${chosenDate.format('YYYY-MM-DD')}/${selectedTechnician._id}`)
-          .then(res => res.json())
-          .then(events => events.events)
-          .then(events => {
-            setEvents(events)
-            setBusySlots(getBusySlots(events))
-          })
+      getEvents()
     }
 
   }, [chosenDate, selectedTechnician])
-  
-  const isFutureTime = (chosenDate: moment.Moment, chosenTimeSlot: string): boolean => {
-    const plannedStartTime = chosenDate
-      .clone()
-      .startOf('day')
-      .hours(Number(chosenTimeSlot.slice(0, 2)))
-      .minutes(Number(chosenTimeSlot.slice(3)))
-    return plannedStartTime.isAfter(moment())
-  }
   
   return (
     <section className="timeline-container">
@@ -137,9 +165,18 @@ const Events = () => {
                             )
                           }
                         </CardContent>
-                        <CardActions>
-                          <Button variant="outlined" color="secondary" size="small">Remove</Button>
-                        </CardActions>
+                        {
+                          isFutureTime(chosenDate, timeSlot, true) && user?.isAdmin && (
+                            <CardActions>
+                              <Button
+                                variant="outlined"
+                                color="secondary"
+                                size="small"
+                                onClick={() => removeEvent(event._id)}
+                              >Remove</Button>
+                            </CardActions>
+                          )
+                        }
                       </Card>
                     )
                   } else {
@@ -148,7 +185,7 @@ const Events = () => {
                 })
               }
               {
-                isFutureTime(chosenDate, timeSlot) && user?.token && !busySlots.includes(timeSlot) ? (
+                isFutureTime(chosenDate, timeSlot, false) && user?.isAdmin && !busySlots.includes(timeSlot) ? (
                   <IconButton onClick={() => openAddEventForm(timeSlot)} edge="end" aria-label="add">
                     <Add/>
                   </IconButton>

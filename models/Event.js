@@ -4,7 +4,7 @@ const eventSchema = new Schema({
     date: {
         type: String,
         required: true
-    }, //Format: 'YYYY-MM-DD'; TODO: Maybe I could use startTime to find out date as well
+    }, //Format: 'YYYY-MM-DD'
     title: {
         type: String,
         required: true

@@ -19,7 +19,6 @@ type AddEventFormProps = {
 export default function AddEventForm({isFormOpen, handleClose, submitForm}: AddEventFormProps) {
 
     const [procedure, setProcedure] = useState<string>('')
-    const [durationMinutes, setDurationMinutes] = useState<string>('')
     const [comment, setComment] = useState<string>('')
     const procedures: Procedure[] = useContext(Procedures)
     const {selectedTechnician} = useContext(Technicians)
@@ -35,19 +34,7 @@ export default function AddEventForm({isFormOpen, handleClose, submitForm}: AddE
     }, [selectedTechnician, procedures])
 
     const handleInput = (e: ChangeEvent<HTMLInputElement>) => {
-        switch (e.currentTarget.name) {
-            case 'title':
-                //setTitle(e.currentTarget.value)
-                break
-            case 'durationMinutes':
-                setDurationMinutes(e.currentTarget.value)
-                break
-            case 'comment':
-                setComment(e.currentTarget.value)
-                break
-            default:
-                console.log('Wrong target name', e)
-        }
+      setComment(e.currentTarget.value)
     }
 
     function checkAndSubmitForm () {
@@ -64,7 +51,6 @@ export default function AddEventForm({isFormOpen, handleClose, submitForm}: AddE
 
     const resetStateAndClose = () => {
         setProcedure('')
-        setDurationMinutes('')
         setComment('')
         handleClose()
     }
@@ -95,14 +81,6 @@ export default function AddEventForm({isFormOpen, handleClose, submitForm}: AddE
                             ))
                         }
                     </TextField>
-                    {/*<TextField*/}
-                    {/*    margin="dense"*/}
-                    {/*    name="durationMinutes"*/}
-                    {/*    label="Duration (in minutes)"*/}
-                    {/*    fullWidth*/}
-                    {/*    onChange={handleInput}*/}
-                    {/*    value={durationMinutes}*/}
-                    {/*/>*/}
                     <TextField
                         multiline
                         margin="dense"
