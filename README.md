@@ -7,3 +7,4 @@ Don't forget to create directory "config" in the root and create "default.json" 
   "secretJWT": "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$",
   "saltRounds": 00
 }
+!!!
